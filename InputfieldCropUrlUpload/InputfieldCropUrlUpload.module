@@ -60,7 +60,7 @@ class InputfieldCropUrlUpload extends InputfieldCropImage {
 			$url_field_name = str_replace("crop_", "crop_url_", $this->name);
 			$url_array = wire('input')->post($url_field_name);
 			if($url_array[0] != ""){
-				$url = $url_array[0];
+				$url = wire('sanitizer')->url($url_array[0]);
 
 				if(@is_array(@getimagesize($url))){
 					$this->value->add($url);
