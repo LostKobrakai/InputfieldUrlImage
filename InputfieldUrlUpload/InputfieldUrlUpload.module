@@ -28,11 +28,18 @@ class InputfieldUrlUpload extends InputfieldImage {
 		$extensions = $this->extensions; 
 		if($this->unzip && !$this->maxFiles) $extensions .= ' zip';
 
+		$attrs_url = $attrs;
+		unset($attrs_url['multiple']);
+		$attrs_url["type"] = "url";
+		$attrs_url["id"] = str_replace("images", "images_url", $attrs_url["id"]);
+		$attrs_url["name"] = str_replace("images", "images_url", $attrs_url["name"]);
+		$attrs_url["class"] = str_replace("FieldtypeImage", "FieldtypeImageUrl", $attrs_url["class"]);
+
 		// added the url inputfield
 		$out =	"\n<p data-maxfilesize='{$this->maxFilesize}' data-extensions='{$extensions}' data-fieldname='$attrs[name]' class='InputfieldFileUpload'>" . 
 			"\n\t<input type='hidden' class='InputfieldFileMaxFiles' value='{$this->maxFiles}' />" . 
 			"\n\t<input " . $this->getAttributesString($attrs) . " />" .
-			"\n\t<input type='url' placeholder='" . __("Upload from Url") ."' class='FieldtypeImage' id='Inputfield_url_images' name='image_url' />" .
+			"\n\t<input " . $this->getAttributesString($attrs_url) . " placeholder='" . __("Upload from Url") ."' />" .
 			"\n\t<span class='InputfieldFileValidExtensions detail'>" . htmlspecialchars(str_replace(' ', ', ', trim($extensions))) . "</span>" . 
 			"\n\t<span class='AjaxUploadDropHere description'><i class='fa fa-upload'></i>&nbsp; " . $this->_('drag and drop files in here') . "</span>" . // Ajax upload instruction
 			"\n</p>";
@@ -50,9 +57,10 @@ class InputfieldUrlUpload extends InputfieldImage {
 		$total = count($this->value); 
 
 		if($this->maxFiles <= 1 || $total < $this->maxFiles) { 
-			// check for the url or upload stuff
-			if(wire('input')->post->image_url){
-				$url = wire('sanitizer')->url(wire('input')->post->image_url);
+			$url_field_name = str_replace("images", "images_url", $this->name);
+			$url_array = wire('input')->post($url_field_name);
+			if($url_array[0] != ""){
+				$url = wire('sanitizer')->url($url_array[0]);
 
 				if(@is_array(@getimagesize($url))){
 					$this->value->add($url);
